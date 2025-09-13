@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"; // Updated import path
 import { google } from "googleapis";
 import { z } from "zod";
 import { addMinutes, formatISO } from "date-fns";
+import { retryGoogleCalendarCall } from "@/lib/utils/retry";
 
 // Meet request schema validation
 const meetSchema = z.object({
@@ -87,33 +88,36 @@ export async function POST(req: NextRequest) {
       responseStatus: 'needsAction'
     }));
 
-    // Create calendar event with Google Meet conference
-    const event = await calendar.events.insert({
-      calendarId: "primary",
-      sendUpdates: "all", // Send email notifications to attendees
-      requestBody: {
-        summary,
-        description,
-        start: {
-          dateTime: formatISO(startTime),
-          timeZone: timeZone || "UTC", // Use provided timeZone or default to UTC
-        },
-        end: {
-          dateTime: formatISO(endTime),
-          timeZone: timeZone || "UTC", // Use provided timeZone or default to UTC
-        },
-        attendees: formattedAttendees,
-        conferenceData: {
-          createRequest: {
-            requestId: `meet-${Date.now()}`,
-            conferenceSolutionKey: {
-              type: "hangoutsMeet",
+    // Create calendar event with Google Meet conference using retry logic
+    const event = await retryGoogleCalendarCall(
+      () => calendar.events.insert({
+        calendarId: "primary",
+        sendUpdates: "all", // Send email notifications to attendees
+        requestBody: {
+          summary,
+          description,
+          start: {
+            dateTime: formatISO(startTime),
+            timeZone: timeZone || "UTC", // Use provided timeZone or default to UTC
+          },
+          end: {
+            dateTime: formatISO(endTime),
+            timeZone: timeZone || "UTC", // Use provided timeZone or default to UTC
+          },
+          attendees: formattedAttendees,
+          conferenceData: {
+            createRequest: {
+              requestId: `meet-${Date.now()}`,
+              conferenceSolutionKey: {
+                type: "hangoutsMeet",
+              },
             },
           },
         },
-      },
-      conferenceDataVersion: 1,
-    });
+        conferenceDataVersion: 1,
+      }),
+      'Google Calendar event creation'
+    );
 
     // Extract the Google Meet link
     const meetLink = event.data.conferenceData?.entryPoints?.find(
@@ -141,7 +145,24 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Meet creation error:", error);
-    // More detailed error response
+    
+    // Check if this is a rate limit error that exhausted retries
+    const err = error as { status?: number; code?: string; response?: { status?: number } };
+    const isRateLimitError = err.status === 429 || err.response?.status === 429;
+    const isQuotaError = err.code === 'RATE_LIMIT_EXCEEDED' || err.code === 'USER_RATE_LIMIT_EXCEEDED';
+    
+    if (isRateLimitError || isQuotaError) {
+      return NextResponse.json(
+        {
+          error: "Google Calendar API rate limit exceeded",
+          details: "Please try again in a few minutes. Google has temporarily limited requests.",
+          retryAfter: 60, // Suggest retry after 60 seconds
+        },
+        { status: 429 }
+      );
+    }
+    
+    // More detailed error response for other errors
     return NextResponse.json(
       {
         error: "Failed to create Google Meet",

@@ -1,6 +1,7 @@
 import { type NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
+import { retryGoogleOAuthCall, type RetryableError } from "./utils/retry";
 
 /**
  * Takes a token, and returns a new token with updated
@@ -9,27 +10,35 @@ import { JWT } from "next-auth/jwt";
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    const url =
-      "https://oauth2.googleapis.com/token?" +
-      new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID || "",
-        client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
-        grant_type: "refresh_token",
-        refresh_token: token.refreshToken as string,
+    const refreshedTokens = await retryGoogleOAuthCall(async () => {
+      const url =
+        "https://oauth2.googleapis.com/token?" +
+        new URLSearchParams({
+          client_id: process.env.GOOGLE_CLIENT_ID || "",
+          client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+          grant_type: "refresh_token",
+          refresh_token: token.refreshToken as string,
+        });
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method: "POST",
       });
 
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      method: "POST",
-    });
+      const responseData = await response.json();
 
-    const refreshedTokens = await response.json();
+      if (!response.ok) {
+        // Create an error object with proper status for retry logic
+        const error = new Error(responseData.error_description || responseData.error || 'Token refresh failed') as RetryableError;
+        error.status = response.status;
+        error.response = { status: response.status, data: responseData };
+        throw error;
+      }
 
-    if (!response.ok) {
-      throw refreshedTokens;
-    }
+      return responseData;
+    }, 'Google OAuth2 token refresh');
 
     return {
       ...token,
@@ -38,7 +47,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
     };
   } catch (error) {
-    console.error("RefreshAccessTokenError", error);
+    console.error("RefreshAccessTokenError after retries:", error);
     return {
       ...token,
       error: "RefreshAccessTokenError",

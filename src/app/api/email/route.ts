@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth"; 
 import nodemailer from "nodemailer";
 import { z } from "zod";
+import { retryGmailCall } from "@/lib/utils/retry";
 
 // Email request schema validation
 const emailSchema = z.object({
@@ -94,12 +95,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Verify SMTP connection configuration
+    // Verify SMTP connection configuration with retry logic
     try {
-      await transporter.verify();
+      await retryGmailCall(
+        () => transporter.verify(),
+        'Gmail SMTP connection verification'
+      );
       console.log("SMTP connection verified successfully");
     } catch (smtpError) {
-      console.error("SMTP verification failed:", smtpError);
+      console.error("SMTP verification failed after retries:", smtpError);
       return NextResponse.json(
         { 
           error: "Failed to connect to email server", 
@@ -131,8 +135,11 @@ export async function POST(req: NextRequest) {
       subject: mailOptions.subject,
     });
 
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
+    // Send email with retry logic
+    const info = await retryGmailCall(
+      () => transporter.sendMail(mailOptions),
+      'Gmail email sending'
+    );
     console.log("Email sent successfully:", info.messageId);
 
     return NextResponse.json({ 
@@ -144,6 +151,23 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("Email sending error:", error);
+    
+    // Check if this is a rate limit error that exhausted retries
+    const err = error as { status?: number; code?: string; response?: { status?: number } };
+    const isRateLimitError = err.status === 429 || err.response?.status === 429;
+    const isQuotaError = err.code === 'RATE_LIMIT_EXCEEDED' || err.code === 'USER_RATE_LIMIT_EXCEEDED';
+    
+    if (isRateLimitError || isQuotaError) {
+      return NextResponse.json(
+        {
+          error: "Gmail API rate limit exceeded",
+          details: "Please try again in a few minutes. Gmail has temporarily limited requests.",
+          retryAfter: 60, // Suggest retry after 60 seconds
+        },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Failed to send email", details: (error as Error).message },
       { status: 500 }
