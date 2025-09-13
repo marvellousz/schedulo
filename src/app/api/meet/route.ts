@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"; // Updated import path
 import { google } from "googleapis";
 import { z } from "zod";
 import { addMinutes, formatISO } from "date-fns";
+import { withCalendarRetry } from "@/lib/backoff";
 
 // Meet request schema validation
 const meetSchema = z.object({
@@ -87,8 +88,8 @@ export async function POST(req: NextRequest) {
       responseStatus: 'needsAction'
     }));
 
-    // Create calendar event with Google Meet conference
-    const event = await calendar.events.insert({
+    // Create calendar event with Google Meet conference with retry logic for rate limits
+    const createCalendarEvent = withCalendarRetry(() => calendar.events.insert({
       calendarId: "primary",
       sendUpdates: "all", // Send email notifications to attendees
       requestBody: {
@@ -113,7 +114,9 @@ export async function POST(req: NextRequest) {
         },
       },
       conferenceDataVersion: 1,
-    });
+    }));
+
+    const event = await createCalendarEvent();
 
     // Extract the Google Meet link
     const meetLink = event.data.conferenceData?.entryPoints?.find(
