@@ -4,7 +4,7 @@
  * This utility wraps async functions and retries them with exponential backoff
  * when Google API rate limit errors are encountered (HTTP 429 or specific error reasons).
  * 
- * @example
+ * @example Basic usage with custom configuration:
  * ```typescript
  * import { withExponentialBackoff } from '@/lib/backoff';
  * 
@@ -14,6 +14,29 @@
  * );
  * 
  * const result = await retryableApiCall();
+ * ```
+ * 
+ * @example Using calendar-specific retry (recommended for Google Calendar operations):
+ * ```typescript
+ * import { withCalendarRetry } from '@/lib/backoff';
+ * 
+ * const createEvent = withCalendarRetry(() => calendar.events.insert({
+ *   calendarId: 'primary',
+ *   requestBody: eventData
+ * }));
+ * 
+ * const event = await createEvent();
+ * ```
+ * 
+ * @example Using with other Google APIs:
+ * ```typescript
+ * import { withExponentialBackoff } from '@/lib/backoff';
+ * 
+ * // Gmail API
+ * const sendEmail = withExponentialBackoff(() => gmail.users.messages.send(params));
+ * 
+ * // Drive API  
+ * const uploadFile = withExponentialBackoff(() => drive.files.create(params));
  * ```
  */
 
