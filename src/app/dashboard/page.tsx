@@ -243,7 +243,15 @@ export default function DashboardPage() {
         });
 
         if (!meetResponse.ok) {
-          throw new Error("Failed to create Google Meet");
+          const errorData = await meetResponse.json().catch(() => ({}));
+          
+          if (meetResponse.status === 429) {
+            toast.error(`Google Calendar rate limit exceeded. ${errorData.details || 'Please try again in a few minutes.'}`);
+            setIsLoading(false);
+            return;
+          }
+          
+          throw new Error(errorData.details || "Failed to create Google Meet");
         }
 
         const meetData = await meetResponse.json();
@@ -269,7 +277,15 @@ export default function DashboardPage() {
       });
 
       if (!emailResponse.ok) {
-        throw new Error("Failed to send email");
+        const errorData = await emailResponse.json().catch(() => ({}));
+        
+        if (emailResponse.status === 429) {
+          toast.error(`Gmail rate limit exceeded. ${errorData.details || 'Please try again in a few minutes.'}`);
+          setIsLoading(false);
+          return;
+        }
+        
+        throw new Error(errorData.details || "Failed to send email");
       }
 
       // Show appropriate success message based on whether a meeting was scheduled
