@@ -1,103 +1,163 @@
-# Schedulo
+# schedulo
 
-Schedulo is a modern web application that streamlines the process of scheduling meetings and sending emails in one unified workflow.
+A modern web application that streamlines meeting scheduling and email communication in one unified workflow. Built as an open source project for productivity.
 
-## Features
-
-- **Unified Workflow**: Create emails and schedule meetings in one seamless process
-- **Google Meet Integration**: Automatically generate meeting links and calendar invitations
-- **Enhanced Date Selection**: Interactive calendar with month navigation for meeting scheduling
-- **Authentication**: Secure login via Google with NextAuth v5
-- **Modern UI**: Clean, responsive interface built with Tailwind CSS v4 and shadcn/ui components
-- **Dark Mode Support**: Comfortable viewing experience in any lighting conditions
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-
-- Node.js 18 or later
+- Node.js 18+ 
 - Google account with Calendar API enabled
 
 ### Installation
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/Marvellousz/schedulo.git
-   cd schedulo
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/Marvellousz/schedulo.git
+cd schedulo
 
-2. Install dependencies
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. Create and configure environment variables
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Then fill in:
-   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
-   - `NEXTAUTH_SECRET` (generate with: `openssl rand -base64 32`)
-   - `NEXTAUTH_URL` (e.g., http://localhost:3000)
-   - Email service credentials
+# Set up environment variables
+cp .env.example .env.local
+```
 
-4. Start the development server
-   ```bash
-   npm run dev
-   ```
+### Environment Setup
 
-5. Visit `http://localhost:3000` to use the application
+Create `.env.local` with the following variables:
+
+```env
+# NextAuth Configuration
+NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+
+# Google OAuth (Get from Google Cloud Console)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Email Service (Gmail SMTP)
+EMAIL_SERVER_USER=your-gmail-address@gmail.com
+EMAIL_SERVER_PASSWORD=your-app-password
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_FROM=your-gmail-address@gmail.com
+```
+
+**Generate NEXTAUTH_SECRET:**
+```bash
+openssl rand -base64 32
+```
+
+**Get Google OAuth Credentials:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google Calendar API and Gmail API
+4. Create OAuth 2.0 credentials
+5. Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
+
+**Get Gmail App Password:**
+1. Enable 2-factor authentication on your Google account
+2. Generate an app password for "Mail"
+3. Use this password in `EMAIL_SERVER_PASSWORD`
+
+### Run the Application
+
+```bash
+# Development
+npm run dev
+
+# Production build
+npm run build
+npm start
+```
+
+Visit `http://localhost:3000` to use the application.
+
+## Features
+
+- **Unified Workflow**: Create emails and schedule meetings in one process
+- **Google Meet Integration**: Automatic meeting link generation
+- **Interactive Calendar**: Month navigation for date selection
+- **Timezone Support**: Schedule across different time zones
+- **Rich Text Editor**: Professional email formatting with TipTap
+- **Google OAuth**: Secure authentication with NextAuth v5
+- **Responsive Design**: Clean UI built with Tailwind CSS v4
 
 ## Tech Stack
 
-- **Frontend**: 
-  - Next.js 15.3 with App Router
-  - React 19
-  - Tailwind CSS v4
-  - shadcn/ui components
-
-- **State Management**:
-  - React Hook Form v7 with Zod validation
-
-- **Authentication**: 
-  - NextAuth.js v5 (Beta)
-  - OAuth providers (Google)
-
-- **API Integration**:
-  - Google APIs (Gmail, Calendar, Meet)
-  - Nodemailer for email handling
-
-- **Developer Experience**:
-  - TypeScript
-  - ESLint v9
-  - Turbopack for faster development
+- **Framework**: Next.js 15.3 with App Router
+- **Frontend**: React 19, Tailwind CSS v4, shadcn/ui
+- **Authentication**: NextAuth.js v5 (Beta) with Google OAuth
+- **APIs**: Google Calendar, Gmail, Meet APIs
+- **Email**: Nodemailer with Gmail SMTP
+- **Forms**: React Hook Form v7 with Zod validation
+- **Editor**: TipTap rich text editor
+- **Language**: TypeScript
 
 ## Usage
 
-1. Log in using Google
-2. Compose your email 
-3. Toggle the "Create a Google Meet" option if needed
-4. Select meeting date from the interactive calendar
-5. Choose time, duration, and timezone for your meeting
-6. Send your email with meeting details included
-7. Calendar invitations are automatically sent to all recipients
+1. **Sign In**: Use Google OAuth to authenticate
+2. **Compose Email**: Write your message with the rich text editor
+3. **Schedule Meeting**: Toggle "Create a Google Meet" if needed
+4. **Select Date**: Use the interactive calendar to pick meeting date
+5. **Configure Details**: Set time, duration, and timezone
+6. **Send**: Email with meeting details is sent to all recipients
+7. **Calendar Sync**: Meeting appears in Google Calendar automatically
 
-## Advanced Features
+## Development
 
-- **Timezone Support**: Schedule meetings across different time zones
-- **Duration Options**: Customize meeting length based on your needs
-- **Calendar Integration**: Direct sync with Google Calendar
-- **Email CC Support**: Include additional recipients as needed
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Lint code
+npm run lint
+```
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── dashboard/         # Main application
+│   ├── login/            # Authentication
+│   ├── privacy/          # Privacy policy
+│   └── terms/            # Terms of service
+├── components/           # Reusable components
+├── lib/                 # Utilities and configurations
+└── styles/              # Global styles
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+- **Email**: pranavmurali024@gmail.com
+- **GitHub**: [https://github.com/Marvellousz/schedulo](https://github.com/Marvellousz/schedulo)
+- **Project**: Schedulo Open Source Project
 
 ---
 
-Built with ❤️ by Pranav Murali 
+Built with ❤️ for productivity
