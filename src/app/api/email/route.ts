@@ -123,8 +123,16 @@ export async function POST(req: NextRequest) {
       to: processRecipients(to),
       ...(cc && { cc: processRecipients(cc) }),
       subject,
-      // Generate plain text version by stripping HTML tags
-      text: emailBody.replace(/<[^>]*>/g, ''),
+      // Generate plain text version by stripping HTML tags and converting to readable format
+      text: emailBody
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+        .replace(/&amp;/g, '&') // Replace HTML entities
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .trim(),
       // Use the HTML content directly from the rich text editor
       html: emailBody,
     };

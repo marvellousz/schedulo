@@ -264,7 +264,37 @@ export default function DashboardPage() {
           data.meetTimeZone
         );
         
-        data.body = `${data.body}\n\n----- Meeting Details -----\nTime: ${formattedDate}\nDuration: ${data.meetDuration} minutes\nTime Zone: ${getTimeZoneDisplay(data.meetTimeZone)}\nJoin the meeting: ${meetData.meetLink}\n\nA calendar invitation has been sent to all recipients. The meeting will appear in your local time zone in your calendar.`;
+        // Create properly formatted HTML meeting details
+        const meetingDetailsHTML = `
+<div style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #007bff; border-radius: 6px; font-family: Arial, sans-serif;">
+  <h3 style="margin: 0 0 15px 0; color: #333; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
+    📅 Meeting Details
+  </h3>
+  <div style="background-color: white; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Time:</span>
+      <span style="color: #333;">${formattedDate}</span>
+    </div>
+    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Duration:</span>
+      <span style="color: #333;">${data.meetDuration} minutes</span>
+    </div>
+    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Time Zone:</span>
+      <span style="color: #333;">${getTimeZoneDisplay(data.meetTimeZone)}</span>
+    </div>
+    <div style="text-align: center; padding: 12px; background-color: #007bff; border-radius: 4px;">
+      <a href="${meetData.meetLink}" style="color: white; text-decoration: none; font-weight: 600; font-size: 16px;">
+        🎥 Join Google Meet
+      </a>
+    </div>
+  </div>
+  <div style="font-size: 14px; color: #6c757d; text-align: center; font-style: italic; border-top: 1px solid #dee2e6; padding-top: 10px;">
+    📧 A calendar invitation has been sent to all recipients. The meeting will appear in your local time zone in your calendar.
+  </div>
+</div>`;
+        
+        data.body = data.body + meetingDetailsHTML;
       }
 
       // Send the email
