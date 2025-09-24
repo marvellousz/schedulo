@@ -1,77 +1,34 @@
 # schedulo
 
-A modern web application that streamlines meeting scheduling and email communication in one unified workflow. Built as an open source project for productivity.
+A modern web application that streamlines meeting scheduling and email communication in one unified workflow.
 
-## Quick Start
+## Table of Contents
 
-### Prerequisites
-- Node.js 18+ 
-- Google account with Calendar API enabled
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-### Installation
+## Overview
 
-```bash
-# Clone the repository
-git clone https://github.com/Marvellousz/schedulo.git
-cd schedulo
+Schedulo solves the problem of juggling multiple apps for meeting scheduling and email communication. Instead of switching between calendar apps, email clients, and video conferencing tools, users can create professional emails with embedded meeting details in one seamless workflow.
 
-# Install dependencies
-npm install
+**Who it's for:** Professionals, teams, and anyone who regularly schedules meetings and sends email invitations.
 
-# Set up environment variables
-cp .env.example .env.local
-```
+## Tech Stack
 
-### Environment Setup
-
-Create `.env.local` with the following variables:
-
-```env
-# NextAuth Configuration
-NEXTAUTH_SECRET=your-secret-key-here
-NEXTAUTH_URL=http://localhost:3000
-
-# Google OAuth (Get from Google Cloud Console)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Email Service (Gmail SMTP)
-EMAIL_SERVER_USER=your-gmail-address@gmail.com
-EMAIL_SERVER_PASSWORD=your-app-password
-EMAIL_SERVER_HOST=smtp.gmail.com
-EMAIL_SERVER_PORT=587
-EMAIL_FROM=your-gmail-address@gmail.com
-```
-
-**Generate NEXTAUTH_SECRET:**
-```bash
-openssl rand -base64 32
-```
-
-**Get Google OAuth Credentials:**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing
-3. Enable Google Calendar API and Gmail API
-4. Create OAuth 2.0 credentials
-5. Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
-
-**Get Gmail App Password:**
-1. Enable 2-factor authentication on your Google account
-2. Generate an app password for "Mail"
-3. Use this password in `EMAIL_SERVER_PASSWORD`
-
-### Run the Application
-
-```bash
-# Development
-npm run dev
-
-# Production build
-npm run build
-npm start
-```
-
-Visit `http://localhost:3000` to use the application.
+- **Frontend**: Next.js 15.3, React 19, TypeScript
+- **Styling**: Tailwind CSS v4, shadcn/ui components
+- **Authentication**: NextAuth.js v5 with Google OAuth
+- **APIs**: Google Calendar, Gmail, Meet APIs
+- **Email**: Nodemailer with Gmail SMTP
+- **Forms**: React Hook Form v7 with Zod validation
+- **Editor**: TipTap rich text editor
 
 ## Features
 
@@ -79,64 +36,84 @@ Visit `http://localhost:3000` to use the application.
 - **Google Meet Integration**: Automatic meeting link generation
 - **Interactive Calendar**: Month navigation for date selection
 - **Timezone Support**: Schedule across different time zones
-- **Rich Text Editor**: Professional email formatting with TipTap
-- **Google OAuth**: Secure authentication with NextAuth v5
-- **Responsive Design**: Clean UI built with Tailwind CSS v4
+- **Rich Text Editor**: Professional email formatting
+- **Google OAuth**: Secure authentication
+- **Responsive Design**: Clean UI for all devices
 
-## Tech Stack
+## Installation
 
-- **Framework**: Next.js 15.3 with App Router
-- **Frontend**: React 19, Tailwind CSS v4, shadcn/ui
-- **Authentication**: NextAuth.js v5 (Beta) with Google OAuth
-- **APIs**: Google Calendar, Gmail, Meet APIs
-- **Email**: Nodemailer with Gmail SMTP
-- **Forms**: React Hook Form v7 with Zod validation
-- **Editor**: TipTap rich text editor
-- **Language**: TypeScript
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Marvellousz/schedulo.git
+   cd schedulo
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Create `.env.local` with:
+   ```env
+   NEXTAUTH_SECRET=your-secret-key-here
+   NEXTAUTH_URL=http://localhost:3000
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   EMAIL_SERVER_USER=your-gmail-address@gmail.com
+   EMAIL_SERVER_PASSWORD=your-app-password
+   EMAIL_SERVER_HOST=smtp.gmail.com
+   EMAIL_SERVER_PORT=587
+   EMAIL_FROM=your-gmail-address@gmail.com
+   ```
+
+4. **Run the application**
+   ```bash
+   npm run dev
+   ```
+
+Visit `http://localhost:3000` to use the application.
 
 ## Usage
 
-1. **Sign In**: Use Google OAuth to authenticate
-2. **Compose Email**: Write your message with the rich text editor
-3. **Schedule Meeting**: Toggle "Create a Google Meet" if needed
-4. **Select Date**: Use the interactive calendar to pick meeting date
-5. **Configure Details**: Set time, duration, and timezone
-6. **Send**: Email with meeting details is sent to all recipients
-7. **Calendar Sync**: Meeting appears in Google Calendar automatically
+1. **Sign in** with your Google account
+2. **Compose your email** using the rich text editor
+3. **Toggle "Create a Google Meet"** if you need a meeting
+4. **Select meeting date** from the interactive calendar
+5. **Configure details** (time, duration, timezone)
+6. **Send** - email with meeting details goes to all recipients
+7. **Calendar sync** - meeting appears in Google Calendar automatically
 
-## Development
+## Deployment
+
+### Vercel (Recommended)
+
+1. **Connect your GitHub repository** to Vercel
+2. **Add environment variables** in Vercel dashboard
+3. **Deploy** - Vercel handles the build automatically
+
+### Manual Deployment
 
 ```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
+# Build the application
 npm run build
 
 # Start production server
 npm start
-
-# Lint code
-npm run lint
 ```
 
-## Project Structure
+### Environment Variables for Production
 
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── dashboard/         # Main application
-│   ├── login/            # Authentication
-│   ├── privacy/          # Privacy policy
-│   └── terms/            # Terms of service
-├── components/           # Reusable components
-├── lib/                 # Utilities and configurations
-└── styles/              # Global styles
-```
+Ensure all environment variables are set in your deployment platform:
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL` (your production domain)
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- Email service credentials
 
 ## Contributing
 
@@ -156,7 +133,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Email**: pranavmurali024@gmail.com
 - **GitHub**: [https://github.com/Marvellousz/schedulo](https://github.com/Marvellousz/schedulo)
-- **Project**: Schedulo Open Source Project
 
 ---
 
