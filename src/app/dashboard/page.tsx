@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 // Form validation schema for email
 const emailFormSchema = z.object({
@@ -624,7 +625,7 @@ export default function DashboardPage() {
                             value={timeZoneQuery}
                             onChange={(e) => setTimeZoneQuery(e.target.value)}
                             placeholder="Search time zones..."
-                            className="w-full p-2 border border-gray-200 rounded"
+                            className="w-full p-2 border border-gray-200 rounded text-black placeholder:text-gray-500"
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>

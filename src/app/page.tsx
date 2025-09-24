@@ -7,17 +7,12 @@ export default function Home() {
       {/* Header matching login page */}
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex justify-between h-16 items-center">
+          <div className="flex justify-start h-16 items-center">
             <Link href="/" className="flex items-center space-x-2 cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <span className="text-xl font-bold tracking-tight">Schedulo</span>
-            </Link>
-            <Link href="/login" className="cursor-pointer">
-              <Button variant="outline" size="sm" className="bg-white text-blue-600 hover:bg-blue-50 border-none">
-                Sign in
-              </Button>
             </Link>
           </div>
         </div>
@@ -69,7 +64,7 @@ export default function Home() {
         </div>
 
         {/* Features section */}
-        <div className="py-16 bg-white">
+        <div id="features" className="py-16 bg-white">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-900">
@@ -138,46 +133,65 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA section */}
-        <div className="bg-blue-600">
-          <div className="container mx-auto px-4 max-w-7xl py-12">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-white">
-                Ready to streamline your meeting workflow?
-              </h2>
-              <div className="mt-6">
-                <Link href="/login" className="cursor-pointer">
-                  <Button size="lg" className="px-6 py-3 text-base font-medium bg-white text-blue-600 hover:bg-blue-50">
-                    Get Started Now
-                  </Button>
-                </Link>
-              </div>
-              {/* Removed "No credit card required" text */}
-            </div>
-          </div>
-        </div>
       </main>
 
-      {/* Footer matching login page */}
-      <footer className="bg-gray-900 text-white">
-        <div className="container mx-auto px-4 max-w-7xl py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="text-lg font-bold text-white">Schedulo</span>
+      {/* Enhanced Footer */}
+      <footer id="about" className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 left-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          {/* Main footer content */}
+          <div className="py-16">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              {/* Brand section */}
+              <div className="flex items-center space-x-4 mb-6 md:mb-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Schedulo</span>
+                  <p className="text-gray-300 text-sm mt-1">Open source communication platform</p>
+                </div>
+              </div>
+
+              {/* GitHub Link */}
+              <div className="flex items-center space-x-4">
+                <Link href="https://github.com/Marvellousz/schedulo" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors duration-200">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                  </svg>
+                  <span className="text-white font-medium">GitHub</span>
+                </Link>
+                <div className="flex items-center space-x-2 text-gray-300">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  <span className="text-sm">MIT License</span>
+                </div>
+              </div>
             </div>
-            <div className="mt-4 md:mt-0 flex flex-col md:flex-row md:space-x-6 items-center">
-              <Link href="/privacy" className="text-gray-300 hover:text-white text-sm cursor-pointer">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-gray-300 hover:text-white text-sm cursor-pointer">
-                Terms of Service
-              </Link>
-              <p className="text-gray-400 text-sm mt-2 md:mt-0">
-                © {new Date().getFullYear()} Schedulo. All rights reserved.
-              </p>
+          </div>
+
+          {/* Bottom section */}
+          <div className="border-t border-gray-700 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+                <p className="text-gray-400 text-sm">
+                  © {new Date().getFullYear()} Schedulo. All rights reserved.
+                </p>
+              </div>
+              <div className="mt-4 md:mt-0">
+                <p className="text-gray-500 text-sm">
+                  Made with ❤️ for productivity
+                </p>
+              </div>
             </div>
           </div>
         </div>
