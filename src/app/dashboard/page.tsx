@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 
 // Form validation schema for email
 const emailFormSchema = z.object({
