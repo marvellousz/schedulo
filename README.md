@@ -156,7 +156,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Email**: pranavmurali024@gmail.com
 - **GitHub**: [https://github.com/Marvellousz/schedulo](https://github.com/Marvellousz/schedulo)
-- **Project**: Schedulo Open Source Project
 
 ---
 
