@@ -3,20 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
+      setError("");
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
-      toast.error("Something went wrong");
-      console.error(error);
-    } finally {
+      console.error("Authentication error:", error);
+      setError("Failed to sign in. Please try again.");
       setIsLoading(false);
     }
   };
@@ -58,6 +58,13 @@ export default function LoginPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Schedulo</h1>
               <p className="text-gray-600 text-lg">Sign in with your Google account to get started</p>
             </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="mb-6 rounded-md bg-red-50 p-4 border border-red-200">
+                <div className="text-sm text-red-700">{error}</div>
+              </div>
+            )}
 
             {/* Google Sign In Button */}
             <div className="space-y-4">
