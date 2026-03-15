@@ -26,7 +26,7 @@ Schedulo solves the problem of juggling multiple apps for meeting scheduling and
 - **Styling**: Tailwind CSS v4, shadcn/ui components
 - **Authentication**: NextAuth.js v5 with Google OAuth
 - **APIs**: Google Calendar, Gmail, Meet APIs
-- **Email**: Nodemailer with Gmail SMTP
+- **Email**: Resend API
 - **Forms**: React Hook Form v7 with Zod validation
 - **Editor**: TipTap rich text editor
 
@@ -61,14 +61,11 @@ Schedulo solves the problem of juggling multiple apps for meeting scheduling and
    Create `.env.local` with:
    ```env
    NEXTAUTH_SECRET=your-secret-key-here
-   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_URL=https://schedulo.marvlock.dev
    GOOGLE_CLIENT_ID=your-google-client-id
    GOOGLE_CLIENT_SECRET=your-google-client-secret
-   EMAIL_SERVER_USER=your-gmail-address@gmail.com
-   EMAIL_SERVER_PASSWORD=your-app-password
-   EMAIL_SERVER_HOST=smtp.gmail.com
-   EMAIL_SERVER_PORT=587
-   EMAIL_FROM=your-gmail-address@gmail.com
+   RESEND_API_KEY=your-resend-api-key
+   EMAIL_FROM=noreply@marvlock.dev
    ```
 
 4. **Run the application**
@@ -131,8 +128,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- **Email**: pranavmurali024@gmail.com
-- **GitHub**: [https://github.com/Marvellousz/schedulo](https://github.com/Marvellousz/schedulo)
+- **Email**: marvlock.dev@gmail.com
+- **GitHub**: [https://github.com/marvlock/schedulo](https://github.com/marvlock/schedulo)
 
 ---
 
