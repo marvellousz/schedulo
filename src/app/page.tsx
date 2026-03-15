@@ -6,7 +6,7 @@ import {
   ArrowRight, 
   Mail, 
   Zap,
-  Github,
+  Globe,
   Plus
 } from "lucide-react";
 import Link from "next/link";
@@ -152,9 +152,9 @@ export default function Home() {
                   <ArrowRight className="ml-4 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
-              <Link href="https://github.com/marvlock/schedulo" target="_blank" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-brand-primary transition-colors flex items-center">
-                <Github className="mr-3 w-4 h-4" />
-                View on GitHub
+              <Link href="https://www.marvlock.dev" target="_blank" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-brand-primary transition-colors flex items-center">
+                <Globe className="mr-3 w-4 h-4" />
+                Visit Website
               </Link>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <span>Made with ❤️ by</span>
               <Link 
-                href="https://github.com/marvlock" 
+                href="https://www.marvlock.dev" 
                 target="_blank" 
                 className="font-bold italic hover:text-brand-primary transition-colors lowercase tracking-normal"
               >

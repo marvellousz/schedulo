@@ -128,8 +128,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
+- **Website**: [https://www.marvlock.dev](https://www.marvlock.dev)
 - **Email**: marvlock.dev@gmail.com
-- **GitHub**: [https://github.com/marvlock/schedulo](https://github.com/marvlock/schedulo)
 
 ---
 

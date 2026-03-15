@@ -112,11 +112,13 @@
 
 /* Custom scrollbar - cypher style */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--background);
+  border-left: 1px solid var(--border);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -125,6 +127,10 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #EE5336;
+  background: var(--primary);
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--background);
+}
