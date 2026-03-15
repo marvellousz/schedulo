@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar } from "lucide-react";
+import { Calendar, Globe } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (
@@ -110,7 +110,7 @@ export default function PrivacyPolicy() {
             </p>
             <p className="my-4">
               Email: marvlock.dev@gmail.com<br />
-              GitHub: <a href="https://github.com/marvlock/schedulo" className="text-brand-primary hover:underline" target="_blank" rel="noopener noreferrer">https://github.com/marvlock/schedulo</a><br />
+              Website: <a href="https://www.marvlock.dev" className="text-brand-primary hover:underline" target="_blank" rel="noopener noreferrer">https://www.marvlock.dev</a><br />
               Schedulo Open Source Project
             </p>
           </div>
@@ -122,10 +122,11 @@ export default function PrivacyPolicy() {
           <p className="text-[10px] font-mono uppercase tracking-widest text-muted flex items-center justify-center space-x-1">
             <span>© {new Date().getFullYear()} Schedulo / Made with ❤️ by</span>
             <Link 
-              href="https://github.com/marvlock" 
+              href="https://www.marvlock.dev" 
               target="_blank" 
-              className="font-bold italic hover:text-brand-primary transition-colors lowercase"
+              className="font-bold italic hover:text-brand-primary transition-colors lowercase flex items-center"
             >
+              <Globe className="w-3 h-3 mr-2" />
               marvlock
             </Link>
           </p>

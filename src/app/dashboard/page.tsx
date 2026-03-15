@@ -735,7 +735,7 @@ export default function DashboardPage() {
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted flex items-center justify-center space-x-2">
             <span>© {new Date().getFullYear()} / Developed by</span>
             <Link 
-              href="https://github.com/marvlock" 
+              href="https://www.marvlock.dev" 
               target="_blank" 
               className="font-black italic hover:text-brand-primary transition-colors lowercase tracking-normal"
             >

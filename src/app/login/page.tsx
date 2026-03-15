@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Github, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar, Globe, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -119,11 +119,11 @@ export default function LoginPage() {
           
           <div className="mt-8 flex flex-col items-center space-y-4">
             <Link 
-              href="https://github.com/marvlock" 
+              href="https://www.marvlock.dev" 
               target="_blank"
               className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted hover:text-brand-primary transition-colors flex items-center"
             >
-              <Github className="w-3.5 h-3.5 mr-3" />
+              <Globe className="w-3.5 h-3.5 mr-3" />
               <span>Made by <span className="font-bold italic lowercase">marvlock</span></span>
             </Link>
             <p className="text-[9px] font-mono text-muted text-center uppercase tracking-widest opacity-80">
