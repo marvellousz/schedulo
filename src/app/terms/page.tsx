@@ -1,27 +1,30 @@
 import Link from "next/link";
+import { Calendar } from "lucide-react";
 
 export default function TermsOfService() {
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Header matching homepage */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex justify-start h-16 items-center">
-            <Link href="/" className="flex items-center space-x-2 cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="text-xl font-bold tracking-tight">Schedulo</span>
-            </Link>
-          </div>
+    <div className="flex flex-col min-h-screen bg-brand-offwhite font-sans selection:bg-brand-primary selection:text-white">
+      <div className="fixed inset-0 z-0 grid-bg opacity-30 pointer-events-none"></div>
+
+      {/* Navigation */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-brand-offwhite/80 backdrop-blur-md border-b border-brand-gray">
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="w-8 h-8 bg-brand-primary flex items-center justify-center text-white">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <span className="text-xl font-mono uppercase tracking-[0.3em] font-bold">
+              Schedulo
+            </span>
+          </Link>
         </div>
       </header>
       
-      <main className="flex-grow bg-white">
-        <div className="container mx-auto py-10 px-4 max-w-4xl">
-          <h1 className="text-3xl font-bold mb-6 text-gray-900">Terms of Service</h1>
+      <main className="relative z-10 pt-40 pb-24">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <h1 className="cypher-heading text-4xl md:text-5xl mb-12">Terms of Service</h1>
           
-          <div className="prose prose-blue max-w-none text-gray-700">
+          <div className="prose prose-neutral max-w-none text-muted font-sans bg-white border border-brand-gray p-12 shadow-sm">
             <p className="text-sm text-gray-500">Last updated: May 16, 2025</p>
             
             <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">1. Acceptance of Terms</h2>
@@ -74,7 +77,7 @@ export default function TermsOfService() {
               <li>Google&apos;s Privacy Policy</li>
             </ul>
             <p>
-              Our use and transfer to any other app of information received from Google APIs will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.
+              Our use and transfer to any other app of information received from Google APIs will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-brand-primary hover:underline" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">6. Limitation of Liability</h2>
@@ -113,30 +116,26 @@ export default function TermsOfService() {
               If you have any questions or concerns about these Terms, please contact us at:
             </p>
             <p className="my-4">
-              Email: pranavmurali024@gmail.com<br />
-              GitHub: <a href="https://github.com/Marvellousz/schedulo" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://github.com/Marvellousz/schedulo</a><br />
+              Email: marvlock.dev@gmail.com<br />
+              GitHub: <a href="https://github.com/marvlock/schedulo" className="text-brand-primary hover:underline" target="_blank" rel="noopener noreferrer">https://github.com/marvlock/schedulo</a><br />
               Schedulo Open Source Project
             </p>
           </div>
         </div>
       </main>
 
-      {/* Compact Footer matching sign-in page */}
-      <footer className="bg-gray-900 text-white">
-        <div className="container mx-auto px-4 max-w-7xl py-6">
-          <div className="flex flex-col md:flex-row justify-center items-center">
-            <div className="flex items-center space-x-4">
-              <Link href="https://github.com/Marvellousz/schedulo" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span className="text-sm">GitHub</span>
-              </Link>
-              <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} Schedulo. All rights reserved.
-              </p>
-            </div>
-          </div>
+      <footer className="py-12 border-t border-brand-gray bg-brand-offwhite relative z-10">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted flex items-center justify-center space-x-1">
+            <span>© {new Date().getFullYear()} Schedulo / Made with ❤️ by</span>
+            <Link 
+              href="https://github.com/marvlock" 
+              target="_blank" 
+              className="font-bold italic hover:text-brand-primary transition-colors lowercase"
+            >
+              marvlock
+            </Link>
+          </p>
         </div>
       </footer>
     </div>

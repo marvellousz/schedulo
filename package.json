@@ -1,5 +1,5 @@
 {
-  "name": "email-meet-app",
+  "name": "schedulo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.36.0",
     "googleapis": "^148.0.0",
     "lucide-react": "^0.510.0",
     "next": "15.3.2",
@@ -34,6 +35,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
     "react-hot-toast": "^2.5.2",
+    "resend": "^6.9.3",
     "shadcn-ui": "^0.9.5",
     "tailwind-merge": "^3.3.0",
     "zod": "^3.24.4"

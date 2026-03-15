@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { 
+  Mail, 
+  Globe, 
+  CheckCircle2, 
+  Zap, 
+  ChevronLeft, 
+  ChevronRight,
+  Send,
+  Video,
+  Calendar,
+  Loader2,
+  LogOut,
+  User,
+  Plus
+} from "lucide-react";
+import { signOut } from "next-auth/react";
 
 // Form validation schema for email
 const emailFormSchema = z.object({
@@ -118,8 +136,7 @@ const getTimeZoneDisplay = (timeZoneValue: string | undefined) => {
 };
 
 export default function DashboardPage() {
-  // Use session without variable name to keep the authentication active
-  useSession();
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [meetLink, setMeetLink] = useState<string | null>(null);
 
@@ -134,8 +151,7 @@ export default function DashboardPage() {
     : "Etc/UTC";
 
   // For searching time zones
-  const [timeZoneQuery, setTimeZoneQuery] = useState('');
-  const [isTimeZoneDropdownOpen, setIsTimeZoneDropdownOpen] = useState(false);
+  // Remove unused query state
 
   const {
     register,
@@ -190,28 +206,12 @@ export default function DashboardPage() {
     setCurrentMonth(nextMonth);
   };
 
-  // Navigate to current month
-  const goToCurrentMonth = () => {
-    setCurrentMonth(new Date());
-  };
-
-  // Filter time zones based on search query
-  const filteredTimeZones = timeZoneQuery
-    ? commonTimeZones.filter(tz => 
-        tz.label.toLowerCase().includes(timeZoneQuery.toLowerCase()) || 
-        tz.value.toLowerCase().includes(timeZoneQuery.toLowerCase()))
-    : commonTimeZones;
-
-  // Select a time zone
-  const handleTimeZoneSelect = (value: string) => {
-    setValue("meetTimeZone", value);
-    setIsTimeZoneDropdownOpen(false);
-    setTimeZoneQuery('');
-  };
+  // Removed unused functions
 
   // Function to handle form submission
   async function onSubmit(data: EmailFormValues) {
     setIsLoading(true);
+    setMeetLink(null); // Clear any previous meeting link
     try {
       // First, create a Google Meet if requested
       if (data.includeMeet) {
@@ -266,31 +266,34 @@ export default function DashboardPage() {
         
         // Create properly formatted HTML meeting details
         const meetingDetailsHTML = `
-<div style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #007bff; border-radius: 6px; font-family: Arial, sans-serif;">
-  <h3 style="margin: 0 0 15px 0; color: #333; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
-    📅 Meeting Details
-  </h3>
-  <div style="background-color: white; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-    <div style="margin-bottom: 10px; display: flex; align-items: center;">
-      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Time:</span>
-      <span style="color: #333;">${formattedDate}</span>
+<div style="margin-top: 30px; padding: 30px; background-color: #FFFFFF; border: 1px solid #E5E5E5; font-family: sans-serif;">
+  <div style="font-family: monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #EE5336; margin-bottom: 20px;">
+    Meeting Confirmed
+  </div>
+  
+  <div style="margin-bottom: 25px;">
+    <div style="display: table; width: 100%; border-bottom: 1px solid #F2F2F2; padding-bottom: 12px; margin-bottom: 12px;">
+      <div style="display: table-cell; width: 100px; font-family: monospace; font-size: 9px; text-transform: uppercase; color: #666666;">Time</div>
+      <div style="display: table-cell; font-weight: bold; font-size: 14px; color: #1A1A1A;">${formattedDate}</div>
     </div>
-    <div style="margin-bottom: 10px; display: flex; align-items: center;">
-      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Duration:</span>
-      <span style="color: #333;">${data.meetDuration} minutes</span>
+    
+    <div style="display: table; width: 100%; border-bottom: 1px solid #F2F2F2; padding-bottom: 12px; margin-bottom: 12px;">
+      <div style="display: table-cell; width: 100px; font-family: monospace; font-size: 9px; text-transform: uppercase; color: #666666;">Time Zone</div>
+      <div style="display: table-cell; font-size: 14px; color: #1A1A1A;">${getTimeZoneDisplay(data.meetTimeZone)}</div>
     </div>
-    <div style="margin-bottom: 15px; display: flex; align-items: center;">
-      <span style="display: inline-block; width: 80px; font-weight: 600; color: #495057;">Time Zone:</span>
-      <span style="color: #333;">${getTimeZoneDisplay(data.meetTimeZone)}</span>
-    </div>
-    <div style="text-align: center; padding: 12px; background-color: #007bff; border-radius: 4px;">
-      <a href="${meetData.meetLink}" style="color: white; text-decoration: none; font-weight: 600; font-size: 16px;">
-        🎥 Join Google Meet
-      </a>
+
+    <div style="display: table; width: 100%; padding-bottom: 12px;">
+      <div style="display: table-cell; width: 100px; font-family: monospace; font-size: 9px; text-transform: uppercase; color: #666666;">Duration</div>
+      <div style="display: table-cell; font-size: 14px; color: #1A1A1A;">${data.meetDuration} Minutes</div>
     </div>
   </div>
-  <div style="font-size: 14px; color: #6c757d; text-align: center; font-style: italic; border-top: 1px solid #dee2e6; padding-top: 10px;">
-    📧 A calendar invitation has been sent to all recipients. The meeting will appear in your local time zone in your calendar.
+
+  <a href="${meetData.meetLink}" style="display: block; text-align: center; background-color: #EE5336; color: #FFFFFF; text-decoration: none; padding: 18px; font-family: monospace; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em;">
+    Join Meeting →
+  </a>
+  
+  <div style="margin-top: 20px; font-family: monospace; font-size: 9px; color: #999999; text-transform: uppercase; text-align: center;">
+    * A calendar invitation has been sent to all recipients.
   </div>
 </div>`;
         
@@ -325,8 +328,10 @@ export default function DashboardPage() {
         toast.success("Email sent successfully!");
       }
       
+      // We only reset the form fields but preserve the meetLink state
+      // so the user can copy the physical meeting link
       reset();
-      setMeetLink(null);
+      // INTENTIONALLY NOT CLEARING MEET LINK: setMeetLink(null);
     } catch (error) {
       console.error("Error:", error);
       toast.error("Failed to process your request. Please try again.");
@@ -349,10 +354,7 @@ export default function DashboardPage() {
     return options;
   };
 
-  // Generate days of the week for date picker
-  const generateDaysOfWeek = () => {
-    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  };
+  // generateDaysOfWeek removed (unused)
 
   // Generate dates for the full month view
   const generateMonthDates = () => {
@@ -409,398 +411,367 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold">Send Email & Create Meeting</h1>
-        <p className="text-blue-100 mt-2">
-          Create a Google Meet and send the link in an email
-        </p>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-brand-offwhite py-12 px-4 sm:px-6 lg:px-8 font-sans selection:bg-brand-primary selection:text-white"
+    >
+      {/* Background Layer */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Technical Grid */}
+        <div className="absolute inset-0 grid-bg opacity-30"></div>
+        
+        {/* Dot Grid */}
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, var(--border) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.1 }}></div>
+
+        {/* Dynamic Blobs */}
+        <div className="bg-blob bg-blob-primary w-[500px] h-[500px] -top-48 -left-48"></div>
+        <div className="bg-blob bg-blob-primary w-[400px] h-[400px] top-1/2 -right-24 delay-1000"></div>
+        <div className="bg-blob bg-blob-secondary w-[600px] h-[600px] -bottom-48 left-1/4"></div>
+
+        {/* Noise Texture */}
+        <div className="absolute inset-0 bg-noise opacity-[0.03] mix-blend-overlay"></div>
       </div>
+      
+      <div className="max-w-6xl mx-auto space-y-12 relative z-10 pb-20">
+        {/* Top Navigation */}
+        <div className="flex justify-between items-center py-6">
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="w-6 h-6 bg-brand-primary flex items-center justify-center text-white">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-mono uppercase tracking-[0.2em] font-bold">Schedulo</span>
+          </Link>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Email Form */}
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <Label htmlFor="to" className="text-gray-700 font-medium">To</Label>
-              <Input
-                id="to"
-                placeholder="recipient@example.com, recipient2@example.com"
-                {...register("to")}
-                className="mt-1 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-              {errors.to && (
-                <p className="text-red-600 text-sm mt-1">{errors.to.message}</p>
-              )}
-              <p className="text-gray-500 text-xs mt-1">
-                Separate multiple email addresses with commas
-              </p>
+          <div className="flex items-center space-x-6">
+            {session?.user && (
+              <div className="hidden sm:flex items-center space-x-3 px-4 py-2 border border-brand-gray bg-white">
+                {session.user.image ? (
+                  <img src={session.user.image} alt="" className="w-4 h-4 rounded-none" />
+                ) : (
+                  <User className="w-4 h-4 text-muted" />
+                )}
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted">
+                  {session.user.name}
+                </span>
+              </div>
+            )}
+            
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-brand-primary transition-colors group"
+            >
+              <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Header Section */}
+        <div className="border border-brand-gray bg-white p-8 md:p-16 shadow-sm relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-offwhite -translate-y-32 translate-x-32 rotate-45 pointer-events-none opacity-50"></div>
+          <div className="absolute top-0 right-0 p-4"><Plus className="w-4 h-4 text-brand-gray opacity-20" /></div>
+          
+          <div className="relative z-10 space-y-8">
+            <h1 className="cypher-heading text-5xl md:text-8xl tracking-tighter leading-none max-w-4xl">
+              Meeting <span className="text-brand-primary">Terminal</span>
+            </h1>
+            <p className="text-muted font-sans text-xs max-w-xl leading-relaxed">
+              Schedule meetings and send professional invitations in seconds.
+            </p>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="border border-brand-gray bg-white relative shadow-sm">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Form Section Header */}
+            <div className="bg-brand-offwhite border-b border-brand-gray p-6 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-2 h-2 bg-brand-primary" />
+                <h2 className="text-[10px] font-bold font-mono tracking-widest uppercase text-muted">Message Details</h2>
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="cc" className="text-gray-700 font-medium">CC (Optional)</Label>
-              <Input
-                id="cc"
-                placeholder="cc@example.com, cc2@example.com"
-                {...register("cc")}
-                className="mt-1 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-              {errors.cc && (
-                <p className="text-red-600 text-sm mt-1">{errors.cc.message}</p>
-              )}
-              <p className="text-gray-500 text-xs mt-1">
-                Separate multiple email addresses with commas
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="subject" className="text-gray-700 font-medium">Subject</Label>
-              <Input
-                id="subject"
-                placeholder="Email subject"
-                {...register("subject")}
-                className="mt-1 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-              {errors.subject && (
-                <p className="text-red-600 text-sm mt-1">{errors.subject.message}</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="body" className="text-gray-700 font-medium">Email Body</Label>
-              <Textarea
-                id="body"
-                placeholder="Write your email content here..."
-                {...register("body")}
-                className="min-h-[150px] mt-1 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-              {errors.body && (
-                <p className="text-red-600 text-sm mt-1">{errors.body.message}</p>
-              )}
-            </div>
-
-            {/* Google Meet Toggle */}
-            <div className="flex items-center space-x-2 bg-blue-50 p-4 rounded-lg border border-blue-100 transition-all hover:border-blue-200 cursor-pointer" onClick={() => setValue("includeMeet", !includeMeet)}>
-              <input
-                type="checkbox"
-                id="includeMeet"
-                className="h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                checked={includeMeet}
-                onChange={handleIncludeMeetToggle}
-              />
-              <Label htmlFor="includeMeet" className="cursor-pointer text-gray-800 font-medium flex-grow">
-                <div className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952a4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                  </svg>
-                  Create a Google Meet for this email
-                </div>
-              </Label>
-            </div>
-
-            {/* Google Meet Options - Show only if includeMeet is checked */}
-            {includeMeet && (
-              <div className="border p-6 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 space-y-5 border-blue-200 shadow-sm transition-all duration-300">
-                <h3 className="font-semibold text-blue-900 flex items-center text-lg mb-4 pb-2 border-b border-blue-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                  </svg>
-                  Configure Meeting Details
-                </h3>
-
-                {/* Date Picker - Enhanced Calendar Style with Month Navigation */}
-                <div className="mb-6">
-                  <Label htmlFor="meetDate" className="text-gray-900 font-medium block mb-2 text-sm">
-                    Date
+            <div className="p-8 md:p-12 space-y-12 bg-white">
+              {/* Recipients Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-4">
+                  <Label htmlFor="to" className="text-[9px] font-mono font-bold text-muted uppercase tracking-widest block">
+                    Recipient Email
                   </Label>
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                    {/* Month navigation */}
-                    <div className="flex justify-between items-center mb-4">
-                      <button 
-                        type="button"
-                        className="text-gray-700 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50"
-                        onClick={goToPreviousMonth}
-                        aria-label="Previous month"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                        </svg>
-                      </button>
-                      
-                      <div className="flex items-center">
-                        <span className="text-center text-gray-900 font-medium">
-                          {getMonthYearDisplay(currentMonth)}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={goToCurrentMonth}
-                          className="ml-2 text-xs text-blue-600 hover:underline p-1"
-                          aria-label="Go to current month"
-                        >
-                          (Today)
-                        </button>
-                      </div>
-                      
-                      <button 
-                        type="button"
-                        className="text-gray-700 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50"
-                        onClick={goToNextMonth}
-                        aria-label="Next month"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                      </button>
-                    </div>
-                    
-                    {/* Days of week header */}
-                    <div className="grid grid-cols-7 gap-1 mb-2">
-                      {generateDaysOfWeek().map((day) => (
-                        <div key={day} className="text-center text-xs text-gray-900 font-medium py-1">
-                          {day}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Calendar dates - Full month view */}
-                    <div className="grid grid-cols-7 gap-1">
-                      {generateMonthDates().map((date, index) => (
-                        <div
-                          key={index}
-                          className={`
-                            text-center p-2 rounded-full text-sm font-medium
-                            ${!date ? 'invisible' : ''}
-                            ${date && isDateSelected(date) ? 'bg-blue-600 text-white' : ''}
-                            ${date && !isDateSelected(date) && !isPastDate(date) ? 'hover:bg-gray-100 cursor-pointer text-gray-900' : ''}
-                            ${date && isToday(date) && !isDateSelected(date) ? 'border border-blue-400' : ''}
-                            ${date && isPastDate(date) ? 'text-gray-400 cursor-not-allowed' : ''}
-                          `}
-                          onClick={() => date && !isPastDate(date) ? handleDateChange(date) : null}
-                        >
-                          {date ? date.getDate() : ''}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Hidden input for form */}
-                    <input 
-                      type="hidden" 
-                      id="meetDate"
-                      {...register("meetDate")} 
-                    />
-                  </div>
-                  {errors.meetDate && (
-                    <p className="text-red-600 text-sm mt-1">{errors.meetDate.message}</p>
+                  <Input
+                    id="to"
+                    placeholder="example@domain.com"
+                    {...register("to")}
+                    className="h-14 bg-brand-offwhite border-brand-gray rounded-none border focus:border-brand-primary focus:ring-0 px-6 font-mono text-xs transition-all placeholder:text-muted/30"
+                  />
+                  {errors.to && (
+                    <p className="text-brand-primary text-[9px] font-mono uppercase mt-2 tracking-tighter">!! {errors.to.message}</p>
                   )}
                 </div>
 
-                {/* Time Zone Selector */}
-                <div className="mb-6 relative">
-                  <Label htmlFor="meetTimeZone" className="text-gray-900 font-medium block mb-2 text-sm">
-                    Time Zone
+                <div className="space-y-4">
+                  <Label htmlFor="cc" className="text-[9px] font-mono font-bold text-muted uppercase tracking-widest block">
+                    CC (Optional)
                   </Label>
-                  <div className="relative">
-                    <div 
-                      className="w-full p-3 border border-gray-200 rounded-lg flex items-center justify-between bg-white cursor-pointer"
-                      onClick={() => setIsTimeZoneDropdownOpen(!isTimeZoneDropdownOpen)}
-                    >
-                      <span className="text-gray-900">{getTimeZoneDisplay(meetTimeZone)}</span>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className={`h-5 w-5 text-gray-700 transition-transform ${isTimeZoneDropdownOpen ? 'transform rotate-180' : ''}`} 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                    
-                    {isTimeZoneDropdownOpen && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
-                        <div className="p-2 border-b border-gray-100">
-                          <input
-                            type="text"
-                            value={timeZoneQuery}
-                            onChange={(e) => setTimeZoneQuery(e.target.value)}
-                            placeholder="Search time zones..."
-                            className="w-full p-2 border border-gray-200 rounded text-black placeholder:text-gray-500"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                        <div className="max-h-60 overflow-y-auto">
-                          {filteredTimeZones.map((tz) => (
-                            <div 
-                              key={tz.value}
-                              className={`p-2 cursor-pointer hover:bg-blue-50 text-black ${meetTimeZone === tz.value ? 'bg-blue-100 font-medium' : ''}`}
-                              onClick={() => handleTimeZoneSelect(tz.value)}
-                            >
-                              {tz.label}
-                            </div>
-                          ))}
+                  <Input
+                    id="cc"
+                    placeholder="cc@domain.com"
+                    {...register("cc")}
+                    className="h-14 bg-brand-offwhite border-brand-gray rounded-none border focus:border-brand-primary focus:ring-0 px-6 font-mono text-xs transition-all placeholder:text-muted/30"
+                  />
+                </div>
+              </div>
+
+              {/* Subject & Body */}
+              <div className="space-y-12">
+                <div className="space-y-4">
+                  <Label htmlFor="subject" className="text-[9px] font-mono font-bold text-muted uppercase tracking-widest block">
+                    Email Subject
+                  </Label>
+                  <Input
+                    id="subject"
+                    placeholder="Enter subject here..."
+                    {...register("subject")}
+                    className="h-14 bg-brand-offwhite border-brand-gray rounded-none border focus:border-brand-primary focus:ring-0 px-6 font-mono text-xs transition-all placeholder:text-muted/30"
+                  />
+                  {errors.subject && (
+                    <p className="text-brand-primary text-[9px] font-mono uppercase mt-2 tracking-tighter">!! {errors.subject.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <Label htmlFor="body" className="text-[9px] font-mono font-bold text-muted uppercase tracking-widest block">
+                    Message Body
+                  </Label>
+                  <Textarea
+                    id="body"
+                    placeholder="Write your email content here..."
+                    {...register("body")}
+                    className="min-h-[200px] bg-brand-offwhite border border-brand-gray rounded-none focus:border-brand-primary focus:ring-0 p-8 font-mono text-xs leading-relaxed resize-none placeholder:text-muted/30"
+                  />
+                </div>
+              </div>
+
+              {/* Toggle Section */}
+              <div 
+                className={`border p-8 flex items-center justify-between cursor-pointer transition-all ${
+                  includeMeet ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/10' : 'bg-brand-offwhite border-brand-gray grayscale hover:grayscale-0'
+                }`}
+                onClick={() => setValue("includeMeet", !includeMeet)}
+              >
+                <div className="flex items-center space-x-6">
+                  <div className={`w-12 h-12 flex items-center justify-center border transition-colors ${
+                    includeMeet ? 'bg-white text-brand-primary border-white' : 'bg-white text-muted border-brand-gray'
+                  }`}>
+                    <Video className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-mono font-black uppercase tracking-widest">Google Meet</h3>
+                    <p className={`text-[9px] font-mono uppercase tracking-widest ${includeMeet ? 'text-white/70' : 'text-muted'}`}>Enable Video Integration</p>
+                  </div>
+                </div>
+                <div className={`w-5 h-5 border flex items-center justify-center transition-all ${
+                  includeMeet ? 'bg-white border-white' : 'border-brand-gray'
+                }`}>
+                  {includeMeet && <CheckCircle2 className="w-3 h-3 text-brand-primary" />}
+                </div>
+              </div>
+
+              {/* Google Meet Advanced Options */}
+              <AnimatePresence>
+                {includeMeet && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="p-8 md:p-12 space-y-12 bg-white border border-brand-primary/30"
+                  >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                      {/* Date Selection */}
+                      <div className="space-y-6">
+                        <Label className="text-[9px] font-mono font-bold text-brand-primary uppercase tracking-widest block">
+                          Meeting Date
+                        </Label>
+                        <div className="bg-brand-offwhite border border-brand-gray p-8">
+                          <div className="flex justify-between items-center mb-8 font-mono">
+                            <Button type="button" variant="ghost" size="icon" onClick={goToPreviousMonth} className="hover:text-brand-primary text-muted h-8 w-8">
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{getMonthYearDisplay(currentMonth)}</span>
+                            <Button type="button" variant="ghost" size="icon" onClick={goToNextMonth} className="hover:text-brand-primary text-muted h-8 w-8">
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-7 gap-1">
+                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                              <div key={`${d}-${idx}`} className="h-8 flex items-center justify-center text-[10px] font-black text-muted/30">{d}</div>
+                            ))}
+                            {generateMonthDates().map((date, i) => (
+                              <div
+                                key={i}
+                                onClick={() => date && !isPastDate(date) && handleDateChange(date)}
+                                className={`
+                                  h-10 flex items-center justify-center font-mono text-[10px] transition-all cursor-pointer
+                                  ${!date ? 'invisible' : ''}
+                                  ${date && isDateSelected(date) ? 'bg-brand-primary text-white font-black' : ''}
+                                  ${date && !isDateSelected(date) && !isPastDate(date) ? 'text-muted hover:text-brand-primary hover:bg-white' : ''}
+                                  ${date && isPastDate(date) ? 'text-muted/20 cursor-not-allowed' : ''}
+                                `}
+                              >
+                                {date?.getDate().toString().padStart(2, '0')}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Configuration */}
+                      <div className="space-y-12">
+                        <div className="space-y-6">
+                          <Label className="text-[9px] font-mono font-bold text-brand-primary uppercase tracking-widest block">
+                            Start Time
+                          </Label>
+                          <div className="grid grid-cols-4 gap-2 max-h-[168px] overflow-y-auto pr-2">
+                            {generateTimeOptions().map(time => (
+                              <button
+                                key={time}
+                                type="button"
+                                onClick={() => setValue("meetTime", time)}
+                                className={`
+                                  py-2 px-1 border font-mono text-[9px] transition-all
+                                  ${meetTime === time ? 'bg-brand-primary border-brand-primary text-white font-black' : 'bg-white border-brand-gray text-muted hover:border-brand-primary hover:text-brand-primary'}
+                                `}
+                              >
+                                {time}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <Label className="text-[9px] font-mono font-bold text-brand-primary uppercase tracking-widest block">
+                            Duration
+                          </Label>
+                          <div className="flex gap-2">
+                            {['15', '30', '60', '90'].map(d => (
+                              <button
+                                key={d}
+                                type="button"
+                                onClick={() => setValue("meetDuration", d)}
+                                className={`
+                                  flex-1 py-3 border font-mono text-[9px] uppercase font-bold transition-all
+                                  ${meetDuration === d ? 'bg-brand-primary border-brand-primary text-white' : 'bg-white border-brand-gray text-muted hover:border-brand-primary'}
+                                `}
+                              >
+                                {d}m
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <Label className="text-[9px] font-mono font-bold text-brand-primary uppercase tracking-widest block">
+                            Time Zone
+                          </Label>
+                          <select
+                            {...register("meetTimeZone")}
+                            className="w-full h-12 bg-brand-offwhite border border-brand-gray rounded-none px-4 font-mono text-[10px] uppercase tracking-widest focus:border-brand-primary focus:ring-0 outline-none transition-all cursor-pointer"
+                          >
+                            {commonTimeZones.map((tz) => (
+                              <option key={tz.value} value={tz.value} className="bg-white text-black py-2">
+                                {tz.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Details */}
+                    <div className="pt-10 border-t border-brand-gray flex flex-col md:flex-row justify-between items-center gap-6">
+                      <div className="flex items-center font-mono text-[10px] text-muted uppercase tracking-widest">
+                        <Globe className="mr-3 h-3 w-3 text-brand-primary" />
+                        Zone: <span className="text-black ml-2">{getTimeZoneDisplay(meetTimeZone)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Submit Button */}
+              <div className="pt-12">
+                <button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="w-full h-24 bg-brand-primary text-white font-mono uppercase text-xl tracking-[0.4em] shadow-xl shadow-brand-primary/10 transition-all hover:brightness-110 active:scale-[0.99] flex items-center justify-center group overflow-hidden relative"
+                >
+                  <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                  <div className="relative flex items-center">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-8 h-8 animate-spin mr-8 text-white" />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-8 h-8 group-hover:translate-x-2 transition-transform mr-8" />
+                        <span>Send</span>
+                      </>
                     )}
                   </div>
-                  <input 
-                    type="hidden" 
-                    id="meetTimeZone"
-                    {...register("meetTimeZone")} 
-                  />
-                  <p className="text-gray-800 text-xs mt-1">
-                    The meeting will appear in each attendee&apos;s local time zone in their calendar.
-                  </p>
-                </div>
-
-                {/* Time Picker - Enhanced Time Selection */}
-                <div className="mb-6">
-                  <Label htmlFor="meetTime" className="text-black font-semibold block mb-2 text-sm">
-                    Time
-                  </Label>
-                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="p-3 flex items-center justify-between bg-blue-50 border-b border-gray-200">
-                      <span className="text-black font-medium">Select start time: </span>
-                      <span className="text-blue-900 font-bold">{formatTimeDisplay(meetTime)}</span>
-                    </div>
-                    <div className="p-3 grid grid-cols-4 gap-2 max-h-36 overflow-y-auto">
-                      {generateTimeOptions().map((time) => (
-                        <div
-                          key={time}
-                          className={`
-                            text-center p-2 rounded cursor-pointer text-sm
-                            ${time === meetTime ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-900'}
-                          `}
-                          onClick={() => setValue("meetTime", time)}
-                        >
-                          {formatTimeDisplay(time)}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Hidden input for form */}
-                    <input 
-                      type="hidden" 
-                      id="meetTime"
-                      {...register("meetTime")} 
-                    />
-                  </div>
-                  {errors.meetTime && (
-                    <p className="text-red-600 text-sm mt-1">{errors.meetTime.message}</p>
-                  )}
-                </div>
-
-                {/* Duration Slider */}
-                <div className="mb-6">
-                  <Label htmlFor="meetDuration" className="text-gray-900 font-medium block mb-2 text-sm">
-                    Duration: <span className="font-bold">{meetDuration} minutes</span>
-                  </Label>
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                    <div className="flex flex-wrap gap-2 justify-between">
-                      {['15', '30', '45', '60', '90', '120'].map((duration) => (
-                        <div
-                          key={duration}
-                          className={`
-                            rounded-full px-4 py-2 cursor-pointer text-sm text-center flex-grow
-                            ${meetDuration === duration ? 
-                              'bg-blue-600 text-white font-medium shadow-sm' : 
-                              'bg-gray-100 hover:bg-gray-200 text-gray-900'}
-                          `}
-                          onClick={() => setValue("meetDuration", duration)}
-                        >
-                          {duration === '60' ? '1 hour' : 
-                           duration === '90' ? '1.5 hours' : 
-                           duration === '120' ? '2 hours' : 
-                           `${duration} min`}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Hidden input for form */}
-                    <input 
-                      type="hidden" 
-                      id="meetDuration"
-                      {...register("meetDuration")} 
-                    />
-                  </div>
-                  {errors.meetDuration && (
-                    <p className="text-red-600 text-sm mt-1">{errors.meetDuration.message}</p>
-                  )}
-                </div>
-
-                {/* Meeting Preview */}
-                <div className="bg-white p-4 rounded-lg border border-blue-100 mt-4 shadow-sm">
-                  <div className="text-blue-800 font-medium mb-2">Meeting Summary</div>
-                  <div className="text-sm text-gray-900 space-y-1">
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                      </svg>
-                      <span>
-                        {selectedDay.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                      </svg>
-                      <span>{formatTimeDisplay(meetTime)} • {meetDuration === '60' ? '1 hour' : meetDuration === '90' ? '1.5 hours' : meetDuration === '120' ? '2 hours' : `${meetDuration} minutes`}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                      </svg>
-                      <span>{getTimeZoneDisplay(meetTimeZone)}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                      <span>Google Meet link will be generated and sent to all recipients</span>
-                    </div>
-                    <div className="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-800">
-                      The meeting will be scheduled in {getTimeZoneDisplay(meetTimeZone)} and adjusted to each recipient&apos;s local time zone in their calendar.
-                    </div>
-                  </div>
-                </div>
+                </button>
               </div>
-            )}
 
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5"
-            >
-              {isLoading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Sending...
-                </span>
-              ) : "Send Email"}
-            </Button>
-            
-            {/* Display Meet Link if created */}
-            {meetLink && (
-              <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-sm">
-                <div className="flex items-center text-green-800 font-medium mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
-                  </svg>
-                  Meeting created successfully!
-                </div>
-                <p className="text-sm text-green-700 mt-1">
-                  Link: <a href={meetLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">{meetLink}</a>
-                </p>
-                <p className="text-sm text-green-700 mt-1">
-                  This link has been included in your email.
-                </p>
-              </div>
-            )}
-          </div>
-        </form>
+              {/* Success Result */}
+              <AnimatePresence>
+                {meetLink && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border-2 border-brand-primary bg-brand-primary/5 p-12 space-y-10"
+                  >
+                    <div className="flex items-center text-brand-primary font-mono text-xs font-black uppercase tracking-widest">
+                      <CheckCircle2 className="h-5 w-5 mr-4" />
+                      Email Sent Successfully
+                    </div>
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="bg-white border border-brand-gray p-6 flex-grow font-mono text-[10px] text-muted break-all shadow-inner">
+                        {meetLink}
+                      </div>
+                      <button 
+                        onClick={() => window.open(meetLink, '_blank')}
+                        className="h-16 px-12 bg-white border border-brand-primary text-brand-primary font-mono font-black uppercase text-[10px] tracking-widest transition-all hover:bg-brand-primary hover:text-white"
+                      >
+                        Join Meeting
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <footer className="mt-2 text-center pb-20">
+        <div className="container mx-auto px-6">
+          <div className="tech-divider mb-8 opacity-20"></div>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted flex items-center justify-center space-x-2">
+            <span>© {new Date().getFullYear()} / Developed by</span>
+            <Link 
+              href="https://github.com/marvlock" 
+              target="_blank" 
+              className="font-black italic hover:text-brand-primary transition-colors lowercase tracking-normal"
+            >
+              marvlock
+            </Link>
+          </p>
+        </div>
+      </footer>
+    </motion.div>
   );
 }

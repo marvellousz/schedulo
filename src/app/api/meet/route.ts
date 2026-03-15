@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
         requestBody: {
           summary,
           description,
+          location: "Google Meet",
+          status: "confirmed",
           start: {
             dateTime: formatISO(startTime),
             timeZone: timeZone || "UTC", // Use provided timeZone or default to UTC
@@ -113,6 +115,11 @@ export async function POST(req: NextRequest) {
               },
             },
           },
+          reminders: {
+            useDefault: true,
+          },
+          guestsCanInviteOthers: true,
+          guestsCanSeeOtherGuests: true,
         },
         conferenceDataVersion: 1,
       }),
@@ -126,6 +133,26 @@ export async function POST(req: NextRequest) {
 
     if (!meetLink) {
       throw new Error("Failed to create Google Meet link");
+    }
+
+    // Update the event to include the meet link in the description for maximum visibility
+    // This ensures that even if the "Join" button isn't prominent, the link is in the notes
+    try {
+      const enhancedDescription = `${description}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nVIDEO CALL LINK: ${meetLink}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nScheduled via Schedulo`;
+      
+      await retryGoogleCalendarCall(
+        () => calendar.events.patch({
+          calendarId: "primary",
+          eventId: event.data.id!,
+          requestBody: {
+            description: enhancedDescription,
+          },
+        }),
+        'Google Calendar event description update'
+      );
+    } catch (updateError) {
+      // Non-critical error, we still have the event and the link
+      console.warn("Failed to update event description with meet link:", updateError);
     }
 
     // Log event creation with timezone information

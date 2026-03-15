@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth"; 
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { z } from "zod";
-import { retryGmailCall } from "@/lib/utils/retry";
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email request schema validation
 const emailSchema = z.object({
@@ -39,13 +41,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Debug session and environment
-    console.log("Email route - Session info:", {
-      user: session.user?.email,
-      provider: session.provider || "unknown",
-      emailServerConfigured: !!process.env.EMAIL_SERVER_HOST,
-    });
-
     // Get request body
     const body = await req.json();
     
@@ -60,124 +55,112 @@ export async function POST(req: NextRequest) {
 
     const { to, cc, subject, body: emailBody } = validationResult.data;
 
-    // Process recipients - convert to a format that nodemailer accepts
-    const processRecipients = (recipients: string | string[]) => {
+    // Process recipients
+    const processRecipients = (recipients: string | string[]): string[] => {
       if (Array.isArray(recipients)) {
         return recipients;
       }
       if (typeof recipients === 'string' && recipients.includes(',')) {
         return recipients.split(',').map(email => email.trim());
       }
-      return recipients;
+      return [recipients as string];
     };
 
-    // Verify email configuration is present
-    if (!process.env.EMAIL_SERVER_USER) {
+    // Verify email configuration
+    if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
         { 
           error: "Email server not configured properly", 
-          details: "The required email server environment variables are not set."
+          details: "RESEND_API_KEY is missing from environment variables."
         },
         { status: 500 }
       );
     }
 
-    // Create Nodemailer transporter using OAuth2 for Gmail
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        type: 'OAuth2',
-        user: process.env.EMAIL_SERVER_USER,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: session.refreshToken,
-        accessToken: session.accessToken,
-      },
-    });
+    const senderEmail = process.env.EMAIL_FROM || "noreply@marvlock.dev";
 
-    // Verify SMTP connection configuration with retry logic
-    try {
-      await retryGmailCall(
-        () => transporter.verify(),
-        'Gmail SMTP connection verification'
-      );
-      console.log("SMTP connection verified successfully");
-    } catch (smtpError) {
-      console.error("SMTP verification failed after retries:", smtpError);
-      return NextResponse.json(
-        { 
-          error: "Failed to connect to email server", 
-          details: (smtpError as Error).message 
-        },
-        { status: 500 }
-      );
-    }
+    // Cypher-themed Email Template Wrapper
+    const cypherTemplate = (content: string, subject: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F2F2F2; color: #1A1A1A; margin: 0; padding: 40px 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E5E5; box-shadow: 0 4px 0 #E5E5E5; }
+    .header { background-color: #121215; padding: 30px; border-bottom: 4px solid #EE5336; }
+    .logo { color: #FFFFFF; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 20px; font-weight: bold; letter-spacing: 0.3em; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; }
+    .logo-box { width: 24px; height: 24px; background-color: #EE5336; margin-right: 12px; display: inline-block; vertical-align: middle; }
+    .content { padding: 40px; line-height: 1.6; }
+    .footer { padding: 30px; background-color: #F8F9FA; border-top: 1px solid #E5E5E5; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 10px; color: #666666; text-transform: uppercase; letter-spacing: 0.1em; }
+    .cta-button { display: inline-block; background-color: #EE5336; color: #FFFFFF !important; padding: 16px 32px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px; font-weight: bold; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; margin: 30px 0; }
+    .divider { height: 1px; background-color: #E5E5E5; margin: 30px 0; position: relative; }
+    .divider::after { content: '+'; position: absolute; top: -7px; right: 0; font-size: 10px; color: #E5E5E5; }
+    .text-muted { color: #666666; font-size: 14px; }
+    h1 { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; border-left: 3px solid #EE5336; padding-left: 15px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="https://schedulo.marvlock.dev" class="logo">
+        <span class="logo-box"></span> SCHEDULO
+      </a>
+    </div>
+    <div class="content">
+      <h1>${subject}</h1>
+      <div style="font-size: 15px; color: #333333;">
+        ${content}
+      </div>
+      <div class="divider"></div>
+      <p class="text-muted">
+        Sent via Schedulo. For more information, visit <a href="https://schedulo.marvlock.dev" style="color: #EE5336; text-decoration: none;">schedulo.marvlock.dev</a>.
+      </p>
+    </div>
+    <div class="footer">
+      © ${new Date().getFullYear()} / <a href="https://schedulo.marvlock.dev" style="color: #666666; text-decoration: none;">Schedulo</a>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
-    // Use the authenticated user's info if available
-    const senderName = session.user?.name || 'Schedulo App User';
-    const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_SERVER_USER;
-
-    // Prepare email data
-    const mailOptions = {
-      from: `${senderName} <${senderEmail}>`,
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: senderEmail,
       to: processRecipients(to),
-      ...(cc && { cc: processRecipients(cc) }),
-      subject,
-      // Generate plain text version by stripping HTML tags and converting to readable format
+      cc: cc ? processRecipients(cc) : undefined,
+      subject: subject,
+      html: cypherTemplate(emailBody, subject),
       text: emailBody
-        .replace(/<[^>]*>/g, '') // Remove HTML tags
-        .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
-        .replace(/&amp;/g, '&') // Replace HTML entities
+        .replace(/<[^>]*>/g, '') 
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
-        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .replace(/\s+/g, ' ')
         .trim(),
-      // Use the HTML content directly from the rich text editor
-      html: emailBody,
-    };
-
-    console.log("Sending email with options:", {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
     });
 
-    // Send email with retry logic
-    const info = await retryGmailCall(
-      () => transporter.sendMail(mailOptions),
-      'Gmail email sending'
-    );
-    console.log("Email sent successfully:", info.messageId);
+    if (error) {
+      console.error("Resend API error:", error);
+      return NextResponse.json(
+        { error: "Failed to send email via Resend", details: error.message },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ 
       success: true, 
       message: "Email sent successfully",
-      messageId: info.messageId,
-      recipients: Array.isArray(mailOptions.to) ? mailOptions.to.length : 1,
+      messageId: data?.id,
     });
 
   } catch (error) {
     console.error("Email sending error:", error);
-    
-    // Check if this is a rate limit error that exhausted retries
-    const err = error as { status?: number; code?: string; response?: { status?: number } };
-    const isRateLimitError = err.status === 429 || err.response?.status === 429;
-    const isQuotaError = err.code === 'RATE_LIMIT_EXCEEDED' || err.code === 'USER_RATE_LIMIT_EXCEEDED';
-    
-    if (isRateLimitError || isQuotaError) {
-      return NextResponse.json(
-        {
-          error: "Gmail API rate limit exceeded",
-          details: "Please try again in a few minutes. Gmail has temporarily limited requests.",
-          retryAfter: 60, // Suggest retry after 60 seconds
-        },
-        { status: 429 }
-      );
-    }
-    
     return NextResponse.json(
-      { error: "Failed to send email", details: (error as Error).message },
+      { error: "An unexpected error occurred", details: (error as Error).message },
       { status: 500 }
     );
   }
