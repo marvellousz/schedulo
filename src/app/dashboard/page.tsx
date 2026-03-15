@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,11 +12,10 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { 
-  Mail, 
   Globe, 
   CheckCircle2, 
-  Zap, 
   ChevronLeft, 
   ChevronRight,
   Send,
@@ -62,20 +61,6 @@ const getTomorrowDate = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   return tomorrow.toISOString().split('T')[0];
-};
-
-// Function to format time for display
-const formatTimeDisplay = (time: string | undefined) => {
-  if (!time) return "12:00 PM";
-  try {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  } catch {
-    return time;
-  }
 };
 
 // Common time zones with friendly names
@@ -179,12 +164,6 @@ export default function DashboardPage() {
   const meetTime = watch("meetTime");
   const meetDuration = watch("meetDuration");
   const meetTimeZone = watch("meetTimeZone");
-
-  // Toggle show/hide Google Meet options
-  const handleIncludeMeetToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    setValue("includeMeet", checked);
-  };
 
   // Handle date change
   const handleDateChange = (date: Date) => {
@@ -395,13 +374,6 @@ export default function DashboardPage() {
     return date.toDateString() === selectedDay.toDateString();
   };
 
-  // Check if a date is today
-  const isToday = (date: Date | null) => {
-    if (!date) return false;
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
   // Check if a date is in the past
   const isPastDate = (date: Date | null) => {
     if (!date) return false;
@@ -447,7 +419,7 @@ export default function DashboardPage() {
             {session?.user && (
               <div className="hidden sm:flex items-center space-x-3 px-4 py-2 border border-brand-gray bg-white">
                 {session.user.image ? (
-                  <img src={session.user.image} alt="" className="w-4 h-4 rounded-none" />
+                  <Image src={session.user.image} alt="" className="w-4 h-4 rounded-none" width={16} height={16} />
                 ) : (
                   <User className="w-4 h-4 text-muted" />
                 )}

@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, ArrowLeft, Calendar, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 function ErrorContent() {
   const searchParams = useSearchParams();

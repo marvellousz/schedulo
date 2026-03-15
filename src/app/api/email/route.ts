@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const senderEmail = process.env.EMAIL_FROM || "noreply@marvlock.dev";
+    const senderEmail = process.env.EMAIL_FROM || "Marvlock <noreply@marvlock.dev>";
 
     // Cypher-themed Email Template Wrapper
     const cypherTemplate = (content: string, subject: string) => `

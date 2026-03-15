@@ -7,7 +7,6 @@ import {
   Mail, 
   Zap,
   Github,
-  CheckCircle2,
   Plus
 } from "lucide-react";
 import Link from "next/link";
